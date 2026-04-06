@@ -1,0 +1,17 @@
+package hangeureut.global.gcp.map.dto;
+
+import java.util.List;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+@Setter
+@Getter
+@ToString
+public class Place {
+	private DisplayName displayName;
+	private String id;
+
+	private List<GooglePhotoResponseDto> photos;
+}
