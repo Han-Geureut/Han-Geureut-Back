@@ -33,17 +33,41 @@ jobs:
           target: "/home/ubuntu/app/"
           strip_components: 2
 
-      - name: Restart application on EC2
+      - name: Restart application
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_KEY }}
+          command_timeout: 3m
           script: |
-            pkill -f "Han-Geureut" || true
-            sleep 3
-            nohup java -jar \
-              -Dspring.config.location=/home/ubuntu/config/application.yml \
-              /home/ubuntu/app/Han-Geureut-BackEnd-0.0.1-SNAPSHOT.jar \
-              > /home/ubuntu/app.log 2>&1 &
-            echo "백엔드 배포 완료"
+            set -e
+            echo "=========================================="
+            echo "🚀 HanGeureut 백엔드 배포"
+            echo "=========================================="
+            
+            # JAR 파일 확인
+            ls -lh /home/ubuntu/app/Han-Geureut-BackEnd-0.0.1-SNAPSHOT.jar
+            
+            # 서비스 재시작
+            echo "🔄 서비스 재시작..."
+            sudo systemctl restart hangeureut
+            
+            # 시작 대기
+            echo "⏳ 대기 중 (15초)..."
+            sleep 15
+            
+            # 상태 확인
+            if sudo systemctl is-active --quiet hangeureut; then
+              echo "✅ 배포 성공!"
+              sudo systemctl status hangeureut --no-pager -l
+              echo "=========================================="
+              echo "📄 최근 로그:"
+              tail -n 20 /home/ubuntu/app.log
+              echo "=========================================="
+            else
+              echo "❌ 배포 실패!"
+              sudo systemctl status hangeureut --no-pager -l || true
+              sudo journalctl -u hangeureut -n 50 --no-pager
+              exit 1
+            fi
