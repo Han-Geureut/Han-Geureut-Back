@@ -67,17 +67,22 @@ public class SecurityConfig {
 				.anyRequest()
 				.authenticated()
 			)
-			// CORS
-			.cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
-				CorsConfiguration config = new CorsConfiguration();
-				config.setAllowedOriginPatterns((Collections.singletonList("*")));
-				config.setAllowedMethods(Collections.singletonList("*"));
-				config.setAllowCredentials(true);
-				config.setAllowedHeaders(Collections.singletonList("*"));
-				config.setExposedHeaders(Arrays.asList("Authorization, Authorization-refresh"));
-				config.setMaxAge(3600L);
-				return config;
-			}));
+                // CORS
+                .cors(corsCustomizer -> corsCustomizer.configurationSource(request -> {
+                    CorsConfiguration config = new CorsConfiguration();
+                    config.setAllowedOriginPatterns(Arrays.asList(
+                            "http://localhost:3000",
+                            "https://hangrt.site",
+                            "https://www.hangrt.site",
+                            "https://hangrt-front.netlify.app"
+                    ));
+                    config.setAllowedMethods(Collections.singletonList("*"));
+                    config.setAllowCredentials(true);
+                    config.setAllowedHeaders(Collections.singletonList("*"));
+                    config.setExposedHeaders(Arrays.asList("Authorization", "Authorization-refresh"));
+                    config.setMaxAge(3600L);
+                    return config;
+                }));
 		// OAUTH2 config
 		http.oauth2Login(httpSecurityOAuth2LoginConfigurer -> {
 			httpSecurityOAuth2LoginConfigurer
