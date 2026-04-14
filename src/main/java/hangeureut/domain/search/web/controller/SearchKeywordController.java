@@ -39,4 +39,10 @@ public class SearchKeywordController {
 
 		return ApiResponse.onSuccess(allPlaceDetailPageResponseDto);
 	}
+
+	// 새로 추가
+	@GetMapping("/albums")
+	public ApiResponse<?> getAllAlbums() {
+		return ApiResponse.onSuccess(searchKeywordService.getAllPublicAlbums());
+	}
 }

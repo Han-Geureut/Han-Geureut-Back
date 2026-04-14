@@ -80,4 +80,44 @@ public class SearchKeywordServiceImpl implements SearchKeywordService {
 			.reviewList(reviewInfo)
 			.build();
 	}
+
+	// 전체 앨범 조회 (추가된 부분)
+	@Override
+	public List<SearchKeywordResponseDTO.AlbumInfo> getAllPublicAlbums() {
+
+		List<Album> albums = albumPostRepository.findAll();
+		List<SearchKeywordResponseDTO.AlbumInfo> result = new ArrayList<>();
+
+		for (Album album : albums) {
+			result.add(SearchKeywordResponseDTO.AlbumInfo.builder()
+					.id(album.getId())
+					.albumName(album.getAlbumName())
+					.userName(album.getUser().getUserName())
+					.mainImg(
+							album.getPhotoImages().isEmpty()
+									? null
+									: album.getPhotoImages().get(0).getImageUrl()
+					)
+					.build());
+		}
+
+		return result;
+	}
+
+	@Override
+	public List<SearchKeywordResponseDTO.ReviewInfo> getAllPublicReviews() {
+
+		List<Review> reviews = reviewRepository.findAll();
+		List<SearchKeywordResponseDTO.ReviewInfo> result = new ArrayList<>();
+
+		for (Review review : reviews) {
+			result.add(SearchKeywordResponseDTO.ReviewInfo.builder()
+					.id(review.getId())
+					.rate(review.getStar())
+					.context(review.getContext())
+					.build());
+		}
+
+		return result;
+	}
 }
