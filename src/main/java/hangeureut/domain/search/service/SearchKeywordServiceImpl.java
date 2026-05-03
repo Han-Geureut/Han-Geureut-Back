@@ -27,22 +27,35 @@ public class SearchKeywordServiceImpl implements SearchKeywordService {
 	private final PlaceRepository placeRepository;
 	private final ReviewRepository reviewRepository;
 
-	// 검색 메서드
+	// 검색 메서드 (키워드가 비어 있으면 앨범·사용자·장소·리뷰 전체 목록)
 	@Override
 	public SearchKeywordResponseDTO.SearchResultDTO searchKeyword(String keyword) {
+		String k = keyword == null ? "" : keyword.trim();
+		boolean matchAll = k.isEmpty();
 
-		List<Album> resultAlbumList = albumPostRepository.findByAlbumNameContaining(keyword);
-		List<User> resultUserList = userRepository.findByUserNameContaining(keyword);
-		List<Place> resultPlaceList = placeRepository.findAllByPlaceNameContaining(keyword);
-		List<Review> resultReviewList = reviewRepository.findByContextContaining(keyword);
+		List<Album> resultAlbumList = matchAll
+			? albumPostRepository.findAll()
+			: albumPostRepository.findByAlbumNameContaining(k);
+		List<User> resultUserList = matchAll
+			? userRepository.findAll()
+			: userRepository.findByUserNameContaining(k);
+		List<Place> resultPlaceList = matchAll
+			? placeRepository.findAll()
+			: placeRepository.findAllByPlaceNameContaining(k);
+		List<Review> resultReviewList = matchAll
+			? reviewRepository.findAll()
+			: reviewRepository.findByContextContaining(k);
 
 		List<SearchKeywordResponseDTO.AlbumInfo> albumInfo = new ArrayList<>();
 		for (Album album : resultAlbumList) {
+			String mainImg = album.getPhotoImages().isEmpty()
+				? null
+				: album.getPhotoImages().get(0).getImageUrl();
 			albumInfo.add(SearchKeywordResponseDTO.AlbumInfo.builder()
 				.id(album.getId())
 				.albumName(album.getAlbumName())
 				.userName(album.getUser().getUserName())
-				.mainImg(album.getPhotoImages().get(0).getImageUrl())
+				.mainImg(mainImg)
 				.build());
 		}
 
