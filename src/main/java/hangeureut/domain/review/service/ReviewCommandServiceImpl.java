@@ -28,6 +28,8 @@ import hangeureut.domain.review.repository.ReviewRepository;
 import hangeureut.domain.review.web.dto.ReviewRequestDTO;
 import hangeureut.domain.user.entity.User;
 import hangeureut.global.aws.s3.AmazonS3Manager;
+import hangeureut.global.enums.statuscode.ErrorStatus;
+import hangeureut.global.exception.GeneralException;
 
 @Service
 @RequiredArgsConstructor
@@ -105,6 +107,19 @@ public class ReviewCommandServiceImpl implements ReviewCommandService {
 		});
 
 		return reviewImages;
+	}
+
+	@Override
+	@Transactional
+	public void deleteReview(Long reviewId, User user) {
+		Review review = reviewRepository.findById(reviewId)
+			.orElseThrow(() -> new GeneralException(ErrorStatus._BAD_REQUEST));
+
+		if (!review.getUser().getId().equals(user.getId())) {
+			throw new GeneralException(ErrorStatus._FORBIDDEN);
+		}
+
+		reviewRepository.delete(review);
 	}
 
 }

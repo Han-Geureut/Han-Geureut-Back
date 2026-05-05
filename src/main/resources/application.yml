@@ -6,10 +6,10 @@ spring:
     include: secret
 
   datasource:
-    url: jdbc:mysql://localhost:3306/memoraize?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
-    username: memoraize
-    password: test1234
-    driver-class-name: com.mysql.cj.jdbc.Driver
+      url: jdbc:mysql://localhost:3306/capstone_db?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=UTF-8&allowPublicKeyRetrieval=true
+      username: root
+      password: 1234
+      driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
@@ -26,7 +26,7 @@ spring:
       max-file-size: 50MB      # 파일 1개 최대 크기
       max-request-size: 200MB  # 요청 전체 최대 크기 (여러 장 업로드 고려)
 
-logging:
-  level:
-    hangeureut: DEBUG
-    org.springframework: INFO
+  logging:
+    level:
+      memoraize: DEBUG
+      org.springframework: INFO
