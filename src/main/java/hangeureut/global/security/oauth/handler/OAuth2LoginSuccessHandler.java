@@ -18,43 +18,40 @@ import hangeureut.global.security.oauth.CustomOAuth2User;
 
 @Component
 @RequiredArgsConstructor
-/**
- * OAuth2 로그인 필터 Success Handler
- */
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
-	private static final Logger log = LogManager.getLogger(OAuth2LoginSuccessHandler.class);
+    private static final Logger log = LogManager.getLogger(OAuth2LoginSuccessHandler.class);
 
-	private final JwtService jwtService;
-	private final UserRepository userRepository;
+    private final JwtService jwtService;
+    private final UserRepository userRepository;
 
-	@Override
-	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-		Authentication authentication) throws IOException,
-		ServletException {
-		try {
-			CustomOAuth2User oAuth2User = (CustomOAuth2User)authentication.getPrincipal();
-			log.info("OAuth2 Login Success :: Login ID = {}", oAuth2User.getLoginId());
-			log.info("Current User Role : {}", oAuth2User.getRole());
-			loginSuccess(response, oAuth2User); // 로그인에 성공한 경우 access, refresh 토큰 생성
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw e;
-		}
+    @Override
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+                                        Authentication authentication) throws IOException, ServletException {
+        try {
+            CustomOAuth2User oAuth2User = (CustomOAuth2User) authentication.getPrincipal();
+            log.info("OAuth2 Login Success :: Login ID = {}", oAuth2User.getLoginId());
+            log.info("Current User Role : {}", oAuth2User.getRole());
+            loginSuccess(response, oAuth2User);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
 
-	}
-
-	private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
+    private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
         String accessToken = jwtService.createAccessToken(oAuth2User.getLoginId());
         String refreshToken = jwtService.createRefreshToken();
-
         jwtService.updateRefreshToken(oAuth2User.getLoginId(), refreshToken);
 
-        // 프론트엔드 콜백 페이지로 리다이렉트
+        Long userId = userRepository.findByLoginId(oAuth2User.getLoginId())
+                .map(user -> user.getId())
+                .orElse(null);
+
         String redirectUrl = "https://hangrt.site/oauth/callback"
                 + "?access_token=" + accessToken
-                + "&refresh_token=" + refreshToken;
+                + "&refresh_token=" + refreshToken
+                + (userId != null ? "&user_id=" + userId : "");
 
         response.sendRedirect(redirectUrl);
-	}
+    }
 }
-
