@@ -44,13 +44,17 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 	}
 
 	private void loginSuccess(HttpServletResponse response, CustomOAuth2User oAuth2User) throws IOException {
-		String accessToken = jwtService.createAccessToken(oAuth2User.getLoginId());
-		String refreshToken = jwtService.createRefreshToken();
-		response.addHeader(jwtService.getAccessHeader(), "Bearer " + accessToken);
-		response.addHeader(jwtService.getRefreshHeader(), "Bearer " + refreshToken);
+        String accessToken = jwtService.createAccessToken(oAuth2User.getLoginId());
+        String refreshToken = jwtService.createRefreshToken();
 
-		jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
-		jwtService.updateRefreshToken(oAuth2User.getLoginId(), refreshToken);
+        jwtService.updateRefreshToken(oAuth2User.getLoginId(), refreshToken);
+
+        // 프론트엔드 콜백 페이지로 리다이렉트
+        String redirectUrl = "https://hangrt.site/oauth/callback"
+                + "?access_token=" + accessToken
+                + "&refresh_token=" + refreshToken;
+
+        response.sendRedirect(redirectUrl);
 	}
 }
 
