@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -56,12 +55,6 @@ public class ReviewRestController {
 		@LoginUser User user) {
 		Review review = reviewCommandService.addReviewWithPhotoId(request, user, photoId);
 		return ApiResponse.onSuccess(ReviewConverter.toAddreviewResultDTO(review));
-	}
-
-	@DeleteMapping("/{reviewId}")
-	public ApiResponse<String> deleteReview(@PathVariable(name = "reviewId") Long reviewId, @LoginUser User user) {
-		reviewCommandService.deleteReview(reviewId, user);
-		return ApiResponse.onSuccess("리뷰가 삭제되었습니다.");
 	}
 
 	/**

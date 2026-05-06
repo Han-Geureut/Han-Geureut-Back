@@ -40,7 +40,7 @@ public class Photo extends BaseEntity {
 	@Column(name = "photo_title")
 	private String title;
 
-	@Column(name = "photo_comment")
+	@Column(name = "photo_comment", columnDefinition = "TEXT")
 	private String comment;
 
 	@OneToMany(mappedBy = "photo", cascade = CascadeType.ALL)

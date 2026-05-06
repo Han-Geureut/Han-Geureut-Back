@@ -70,8 +70,6 @@ public class AlbumPostQueryServiceImpl implements AlbumPostQueryService {
 		Sort sort;
 		if (sortStatus == SortStatus._LATEST) {
 			sort = Sort.by(Sort.Direction.DESC, "createdAt");
-		} else if (sortStatus == SortStatus._OLDEST) {
-			sort = Sort.by(Sort.Direction.ASC, "createdAt");
 		} else if (sortStatus == SortStatus._POPULAR) {
 			sort = Sort.by(Sort.Direction.DESC, "viewCount");
 		} else {
