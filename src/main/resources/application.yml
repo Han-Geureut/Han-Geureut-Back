@@ -26,7 +26,7 @@ spring:
       max-file-size: 50MB      # 파일 1개 최대 크기
       max-request-size: 200MB  # 요청 전체 최대 크기 (여러 장 업로드 고려)
 
-logging:
-  level:
-    hangeureut: DEBUG
-    org.springframework: INFO
+  logging:
+    level:
+      hangeureut: DEBUG
+      org.springframework: INFO
