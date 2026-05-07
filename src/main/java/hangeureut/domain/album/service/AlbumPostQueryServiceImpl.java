@@ -18,12 +18,14 @@ import hangeureut.domain.album.entity.Album;
 import hangeureut.domain.album.enums.SortStatus;
 import hangeureut.domain.album.exception.AlbumNotExistException;
 import hangeureut.domain.album.exception.InvalidSortStatusException;
+import hangeureut.domain.album.repository.AlbumLikedRepository;
 import hangeureut.domain.album.repository.AlbumPostRepository;
 import hangeureut.domain.album.web.dto.AlbumPostResponseDTO;
 import hangeureut.domain.photo.converter.PhotoConverter;
 import hangeureut.domain.photo.entity.Photo;
 import hangeureut.domain.photo.repository.PhotoRepository;
 import hangeureut.domain.photo.web.dto.PhotoResponseDTO;
+import hangeureut.domain.user.entity.User;
 import hangeureut.domain.user.exception.UserNotExistException;
 import hangeureut.domain.user.repository.UserRepository;
 import hangeureut.global.enums.statuscode.ErrorStatus;
@@ -35,6 +37,7 @@ import hangeureut.global.exception.GeneralException;
 public class AlbumPostQueryServiceImpl implements AlbumPostQueryService {
 	private static final Logger log = LogManager.getLogger(AlbumPostQueryServiceImpl.class);
 	private final AlbumPostRepository albumPostRepository;
+	private final AlbumLikedRepository albumLikedRepository;
 	private final UserRepository userRepository;
 	private final PhotoRepository photoRepository;
 	private final AlbumPostCommandService albumPostCommandService;
@@ -42,14 +45,22 @@ public class AlbumPostQueryServiceImpl implements AlbumPostQueryService {
 	@Override
 	@Transactional
 	public AlbumPostResponseDTO.AlbumPostPreviewResultPageDTO getAlbumPage(
-		SortStatus sortStatus, Integer page, Integer pageCount) {
+		SortStatus sortStatus, Integer page, Integer pageCount, User user) {
 		Pageable pageable = toPageable(sortStatus, page, pageCount);
 		Page<Album> result;
 
 		// TODO 앨범 공개 범위별로
 
-		result = albumPostRepository.findAll(pageable);
-		return AlbumPostConverter.toAlbumPostPreviewResultPageDTO(result);
+		if (sortStatus == SortStatus._POPULAR) {
+			result = albumPostRepository.findAllOrderByLikeCountDesc(pageable);
+		} else {
+			result = albumPostRepository.findAll(pageable);
+		}
+		List<Long> likedAlbumIds = result.getContent().stream()
+			.filter(album -> albumLikedRepository.findByUserIdAndAlbumId(user.getId(), album.getId()).isPresent())
+			.map(Album::getId)
+			.collect(Collectors.toList());
+		return AlbumPostConverter.toAlbumPostPreviewResultPageDTO(result, likedAlbumIds);
 	}
 
 	@Override
@@ -70,10 +81,8 @@ public class AlbumPostQueryServiceImpl implements AlbumPostQueryService {
 		Sort sort;
 		if (sortStatus == SortStatus._LATEST) {
 			sort = Sort.by(Sort.Direction.DESC, "createdAt");
-		} else if (sortStatus == SortStatus._OLDEST) {
-			sort = Sort.by(Sort.Direction.ASC, "createdAt");
 		} else if (sortStatus == SortStatus._POPULAR) {
-			sort = Sort.by(Sort.Direction.DESC, "viewCount");
+			sort = Sort.by(Sort.Direction.DESC, "createdAt");
 		} else {
 			throw new InvalidSortStatusException(ErrorStatus._INVALID_SORT_STATUS);
 		}
