@@ -33,9 +33,9 @@ public class AlbumPostConverter {
 	}
 
 	public static AlbumPostResponseDTO.AlbumPostPreviewResultPageDTO toAlbumPostPreviewResultPageDTO(
-		Page<Album> albumPage) {
+		Page<Album> albumPage, List<Long> likedAlbumIds) {
 		List<AlbumPostResponseDTO.AlbumPostPreviewResultDTO> albumList = albumPage.stream()
-			.map(AlbumPostConverter::toAlbumPostPreviewResultDTO)
+			.map(album -> toAlbumPostPreviewResultDTO(album, likedAlbumIds))
 			.collect(
 				Collectors.toList());
 		return AlbumPostResponseDTO.AlbumPostPreviewResultPageDTO.builder()
@@ -49,12 +49,15 @@ public class AlbumPostConverter {
 
 	}
 
-	public static AlbumPostResponseDTO.AlbumPostPreviewResultDTO toAlbumPostPreviewResultDTO(Album album) {
+	public static AlbumPostResponseDTO.AlbumPostPreviewResultDTO toAlbumPostPreviewResultDTO(Album album,
+		List<Long> likedAlbumIds) {
 		return AlbumPostResponseDTO.AlbumPostPreviewResultDTO.builder()
 			.albumId(album.getId())
 			.mainImageUrl(album.getPhotoImages().get(0).getImageUrl())
 			.albumName(album.getAlbumName())
 			.createdAt(album.getCreatedAt())
+			.likedByUser(likedAlbumIds.contains(album.getId()))
+			.viewCount(album.getViewCount())
 			.build();
 	}
 

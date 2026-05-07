@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.Collections;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -52,9 +53,10 @@ public class AlbumPostRestController {
 	public ApiResponse<AlbumPostResponseDTO.AlbumPostPreviewResultPageDTO> getAllAlbumPage(
 		@RequestParam(name = "sortStatus") SortStatus sortStatus,
 		@Pageable @RequestParam(name = "page") Integer page,
-		@Pageable @RequestParam(name = "pageCount") Integer pageCount) {
+		@Pageable @RequestParam(name = "pageCount") Integer pageCount,
+		@LoginUser User user) {
 		AlbumPostResponseDTO.AlbumPostPreviewResultPageDTO resultPageDTO = albumPostQueryService.getAlbumPage(
-			sortStatus, page, pageCount);
+			sortStatus, page, pageCount, user);
 		return ApiResponse.onSuccess(resultPageDTO);
 	}
 
@@ -69,7 +71,7 @@ public class AlbumPostRestController {
 		@PathVariable(name = "userId") Long userId) {
 		Page<Album> userAlbumPage = albumPostQueryService.getUserAlbumPage(userId, sortStatus, page, pageCount);
 		AlbumPostResponseDTO.AlbumPostPreviewResultPageDTO result = AlbumPostConverter.toAlbumPostPreviewResultPageDTO(
-			userAlbumPage);
+			userAlbumPage, Collections.emptyList());
 		return ApiResponse.onSuccess(result);
 	}
 
@@ -84,7 +86,7 @@ public class AlbumPostRestController {
 		@LoginUser User user) {
 		Page<Album> userAlbumPage = albumPostQueryService.getUserAlbumPage(user.getId(), sortStatus, page, pageCount);
 		AlbumPostResponseDTO.AlbumPostPreviewResultPageDTO result = AlbumPostConverter.toAlbumPostPreviewResultPageDTO(
-			userAlbumPage);
+			userAlbumPage, Collections.emptyList());
 		return ApiResponse.onSuccess(result);
 	}
 

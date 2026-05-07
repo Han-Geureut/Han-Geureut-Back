@@ -41,6 +41,8 @@ public class AlbumPostResponseDTO {
 		private String mainImageUrl;
 		private String albumName;
 		private LocalDateTime createdAt;
+		private Boolean likedByUser;
+		private Long viewCount;
 
 		// TODO HashTag 추가 및 앨범 URL 추가
 	}
